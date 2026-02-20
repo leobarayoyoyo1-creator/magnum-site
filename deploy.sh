@@ -2,6 +2,13 @@
 set -euo pipefail
 cd /sistemas/magnum
 
+# Garante que o .env existe antes de continuar
+if [ ! -f .env ]; then
+  echo "ERRO: arquivo .env não encontrado em /sistemas/magnum/.env"
+  echo "Crie o arquivo com DATABASE_URL e SESSION_SECRET (veja .env.example)"
+  exit 1
+fi
+
 git pull --ff-only
 
 # garante dev deps pro build (vite etc), mesmo se o shell estiver com NODE_ENV=production

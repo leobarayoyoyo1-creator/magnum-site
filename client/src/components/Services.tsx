@@ -58,7 +58,7 @@ const Services = memo(() => {
 
         {/* Services Grid - gap menor no mobile */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
-          {services.slice(0, 3).map((service, index) => {
+          {services.map((service, index) => {
             const IconComponent = serviceIcons[index % serviceIcons.length];
             return (
               <div 

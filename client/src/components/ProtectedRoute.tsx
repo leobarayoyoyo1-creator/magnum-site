@@ -19,7 +19,7 @@ export default function ProtectedRoute({
     if (!isLoading) {
       // If not authenticated, redirect to login
       if (!isAuthenticated) {
-        setLocation("/acessar_sistema_seguro_v87");
+        setLocation("/login");
       } 
       // If adminOnly and user is not admin, redirect to home
       else if (adminOnly && user && !user.isAdmin) {

@@ -9,18 +9,23 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+const isDev = process.env.NODE_ENV !== "production";
+
 export default defineConfig({
   plugins: [
-    visualizer({ open: true, gzipSize: true, brotliSize: true, filename: "stats.html" }),
     react(),
-    runtimeErrorOverlay(),
     themePlugin(),
-    ...(process.env.NODE_ENV !== "production" &&
-    process.env.REPL_ID !== undefined
+    ...(isDev
       ? [
-          await import("@replit/vite-plugin-cartographer").then((m) =>
-            m.cartographer(),
-          ),
+          runtimeErrorOverlay(),
+          visualizer({ open: false, gzipSize: true, brotliSize: true, filename: "stats.html" }),
+          ...(process.env.REPL_ID !== undefined
+            ? [
+                await import("@replit/vite-plugin-cartographer").then((m) =>
+                  m.cartographer(),
+                ),
+              ]
+            : []),
         ]
       : []),
   ],

@@ -18,14 +18,61 @@ import { MapPin, Phone, Mail, Clock, Facebook, Instagram } from "lucide-react";
 import { SiTiktok, SiWhatsapp } from "react-icons/si";
 import { useToast } from "@/hooks/use-toast";
 
-// Build the form schema.  Instead of collecting a phone number we now
-// capture a CPF/CNPJ (tax identifier), which requires at least 11
-// characters.  Names and emails are validated as before, and the
-// subject and message fields remain mandatory.
+// Formata CPF (000.000.000-00) ou CNPJ (00.000.000/0000-00) conforme a digitação
+function formatTaxId(value: string): string {
+  const d = value.replace(/\D/g, "");
+  if (d.length <= 11) {
+    return d
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+  }
+  return d
+    .substring(0, 14)
+    .replace(/(\d{2})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d)/, "$1/$2")
+    .replace(/(\d{4})(\d{1,2})$/, "$1-$2");
+}
+
+function validateCPF(val: string): boolean {
+  const d = val.replace(/\D/g, "");
+  if (d.length !== 11 || /^(\d)\1{10}$/.test(d)) return false;
+  let sum = 0;
+  for (let i = 0; i < 9; i++) sum += +d[i] * (10 - i);
+  let r = 11 - (sum % 11);
+  if (r >= 10) r = 0;
+  if (r !== +d[9]) return false;
+  sum = 0;
+  for (let i = 0; i < 10; i++) sum += +d[i] * (11 - i);
+  r = 11 - (sum % 11);
+  if (r >= 10) r = 0;
+  return r === +d[10];
+}
+
+function validateCNPJ(val: string): boolean {
+  const d = val.replace(/\D/g, "");
+  if (d.length !== 14 || /^(\d)\1{13}$/.test(d)) return false;
+  const calc = (len: number) => {
+    const w = len === 12
+      ? [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
+      : [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+    const s = d.slice(0, len).split("").reduce((acc, v, i) => acc + +v * w[i], 0);
+    const rem = s % 11;
+    return rem < 2 ? 0 : 11 - rem;
+  };
+  return calc(12) === +d[12] && calc(13) === +d[13];
+}
+
 const formSchema = z.object({
   name: z.string().min(3, { message: "Nome deve ter pelo menos 3 caracteres" }),
   email: z.string().email({ message: "Email inválido" }),
-  taxId: z.string().min(11, { message: "CPF/CNPJ inválido" }),
+  taxId: z.string().refine((val) => {
+    const digits = val.replace(/\D/g, "");
+    if (digits.length === 11) return validateCPF(val);
+    if (digits.length === 14) return validateCNPJ(val);
+    return false;
+  }, { message: "CPF ou CNPJ inválido" }),
   subject: z.string().min(1, { message: "Selecione um assunto" }),
   message: z.string().min(10, { message: "Mensagem deve ter pelo menos 10 caracteres" }),
 });
@@ -252,10 +299,11 @@ export default function Contact() {
                           <FormItem>
                             <FormLabel className="text-gray-900 font-medium">CPF/CNPJ</FormLabel>
                             <FormControl>
-                              <Input 
-                                placeholder="Seu CPF ou CNPJ" 
-                                className="bg-gray-50/50 border-gray-200 focus:bg-white focus:border-primary transition-all duration-300 rounded-xl py-3" 
-                                {...field} 
+                              <Input
+                                placeholder="000.000.000-00 ou 00.000.000/0001-00"
+                                className="bg-gray-50/50 border-gray-200 focus:bg-white focus:border-primary transition-all duration-300 rounded-xl py-3"
+                                {...field}
+                                onChange={(e) => field.onChange(formatTaxId(e.target.value))}
                               />
                             </FormControl>
                             <FormMessage />

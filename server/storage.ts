@@ -65,23 +65,23 @@ export class DatabaseStorage implements IStorage {
   }
   
   private async createDefaultAdminUser() {
+    const adminPassword = process.env.ADMIN_PASSWORD;
+    if (!adminPassword) {
+      if (process.env.NODE_ENV === 'production') {
+        console.warn('AVISO: ADMIN_PASSWORD não configurado. Nenhum admin será criado automaticamente.');
+      }
+      return;
+    }
     try {
-      // Hash the password
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash('adminpassword', salt);
-      
-      // Create admin user if it doesn't exist
       const existingUser = await this.getUserByUsername('admin');
       if (!existingUser) {
-        await this.createUser({
-          username: 'admin',
-          password: hashedPassword,
-          isAdmin: true
-        });
-        console.log('Default admin user created successfully');
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(adminPassword, salt);
+        await this.createUser({ username: 'admin', password: hashedPassword, isAdmin: true });
+        console.log('Admin criado com sucesso.');
       }
     } catch (error) {
-      console.error('Error creating default admin user:', error);
+      console.error('Erro ao criar admin:', error);
     }
   }
 

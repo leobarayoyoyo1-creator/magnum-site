@@ -1,7 +1,7 @@
 import { MapPin, Phone, Mail, Clock, Facebook, Instagram, Users, Briefcase, Send } from "lucide-react";
 import { SiTiktok, SiWhatsapp } from "react-icons/si";
 import { handleAnchorClick } from "@/utils/scroll";
-import { useLocation } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -26,7 +26,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           <div>
             <div className="mb-6">
-              <h2 className="font-montserrat font-bold text-2xl text-white">Magnum Torque Retifica</h2>
+              <p className="font-montserrat font-bold text-2xl text-white">Magnum Torque Retifica</p>
             </div>
             <p className="text-gray-300 mb-6 leading-relaxed">
               Especialistas em retífica e recondicionamento de conversores de torque há mais de 10 anos, atendendo todo o Brasil com técnicas exclusivas de reparo.
@@ -57,6 +57,7 @@ export default function Footer() {
               <li><a href="#sobre" onClick={(e) => handleNavigationClick(e, 'sobre')} className="text-gray-300 hover:text-white transition-colors duration-300 inline-block py-1">Sobre Nós</a></li>
               <li><a href="#depoimentos" onClick={(e) => handleNavigationClick(e, 'depoimentos')} className="text-gray-300 hover:text-white transition-colors duration-300 inline-block py-1">Depoimentos</a></li>
               <li><a href="#contato" onClick={(e) => handleNavigationClick(e, 'contato')} className="text-gray-300 hover:text-white transition-colors duration-300 inline-block py-1">Contato</a></li>
+              <li><Link to="/privacidade" className="text-gray-300 hover:text-white transition-colors duration-300 inline-block py-1">Política de Privacidade</Link></li>
             </ul>
           </div>
           
@@ -134,6 +135,11 @@ export default function Footer() {
         
         <div className="border-t border-gray-800 pt-8 text-center text-gray-400 text-sm">
           <p>&copy; {new Date().getFullYear()} Magnum Torque Retifica LTDA. Todos os direitos reservados.</p>
+          <p className="mt-2">
+            <Link to="/privacidade" className="hover:text-white transition-colors duration-300">
+              Política de Privacidade
+            </Link>
+          </p>
         </div>
       </div>
     </footer>

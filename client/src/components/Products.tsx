@@ -51,7 +51,7 @@ const Products = memo(() => {
           {/* Call to Action */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button asChild variant="default" className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white px-10 py-4 text-lg shadow-xl hover:shadow-2xl hover:shadow-primary/30 transition-all duration-300 hover:-translate-y-1 rounded-xl">
-              <Link to="/catalogo" className="flex items-center gap-3">
+              <Link to="/produtos" className="flex items-center gap-3">
                 Ver Catálogo Completo <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>

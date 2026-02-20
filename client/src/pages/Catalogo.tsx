@@ -31,7 +31,7 @@ export default function Catalogo() {
   
   const [isFilterOpen, setIsFilterOpen] = useState(true);
   
-  const { data: products = [], isLoading } = useQuery({
+  const { data: products = [], isLoading, isError, refetch } = useQuery({
     queryKey: ["/api/products", filters],
     queryFn: async () => {
       const hasActiveFilters = Object.values(filters).some(Boolean);
@@ -460,6 +460,22 @@ export default function Catalogo() {
                       </button>
                     </Badge>
                   )}
+                  {filters.motorization && (
+                    <Badge variant="secondary" className="bg-primary/10 text-primary gap-1">
+                      {filters.motorization}
+                      <button onClick={() => clearFilter('motorization')} className="ml-1 hover:text-primary/70">
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  )}
+                  {filters.year && (
+                    <Badge variant="secondary" className="bg-primary/10 text-primary gap-1">
+                      Ano: {filters.year}
+                      <button onClick={() => clearFilter('year')} className="ml-1 hover:text-primary/70">
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  )}
                 </div>
               )}
             </div>
@@ -472,6 +488,21 @@ export default function Catalogo() {
                 </div>
                 <p className="mt-6 text-gray-500 font-medium">Carregando produtos...</p>
               </div>
+            ) : isError ? (
+              <Card className="border-0 shadow-lg">
+                <CardContent className="flex flex-col items-center justify-center py-16 px-6">
+                  <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mb-6">
+                    <X className="w-10 h-10 text-red-400" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Erro ao carregar produtos</h3>
+                  <p className="text-gray-500 text-center max-w-md mb-6">
+                    Não foi possível carregar o catálogo. Verifique sua conexão e tente novamente.
+                  </p>
+                  <Button onClick={() => refetch()} variant="default" className="bg-primary hover:bg-primary/90">
+                    Tentar novamente
+                  </Button>
+                </CardContent>
+              </Card>
             ) : filteredProducts.length === 0 ? (
               <Card className="border-0 shadow-lg">
                 <CardContent className="flex flex-col items-center justify-center py-16 px-6">
@@ -502,9 +533,10 @@ export default function Catalogo() {
                     {/* Image Container */}
                     <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50">
                       <img 
-                        src={product.imageUrl || "/products/sample-converter.jpg"} 
+                        src={product.imageUrl || "/products/sample-converter.jpg"}
                         alt={product.name}
                         className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
+                        loading="lazy"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = "/products/sample-converter.jpg";
                         }}

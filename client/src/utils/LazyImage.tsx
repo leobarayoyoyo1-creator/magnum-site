@@ -24,6 +24,8 @@ const LazyImage = memo(({
     setImageError(true);
     if (fallbackSrc) {
       (e.target as HTMLImageElement).src = fallbackSrc;
+    } else {
+      setImageLoaded(true); // sem fallback: remove o placeholder para não ficar pulsando eternamente
     }
     onError?.(e);
   };

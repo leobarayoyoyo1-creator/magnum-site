@@ -1,16 +1,12 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ProductAdmin } from "@/components/ProductAdmin";
-import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
-import { 
-  Package2, 
-  Settings, 
+import {
+  Package2,
   LogOut,
-  ShieldCheck,
   Menu,
   X,
   Home,
@@ -28,81 +24,9 @@ export default function Admin() {
 
   const menuItems = [
     { id: "produtos", label: "Produtos", icon: <Package2 className="h-5 w-5" />, description: "Gerenciar catálogo" },
-    { id: "configuracoes", label: "Configurações", icon: <Settings className="h-5 w-5" />, description: "Ajustes do sistema" },
   ];
 
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case "produtos":
-        return <ProductAdmin />;
-      case "configuracoes":
-        return (
-          <div className="space-y-6">
-            <Card className="border-0 shadow-lg">
-              <CardHeader className="bg-gradient-to-r from-gray-900 to-slate-800 text-white rounded-t-lg">
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="h-5 w-5" />
-                  Configurações do Sistema
-                </CardTitle>
-                <CardDescription className="text-gray-300">
-                  Ajuste as configurações gerais do painel administrativo.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6 p-6">
-                <div>
-                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                    <div className="w-2 h-2 bg-primary rounded-full"></div>
-                    Informações da Empresa
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="p-4 bg-gray-50 rounded-lg border">
-                      <p className="text-sm font-medium text-gray-500 mb-1">Nome da Empresa</p>
-                      <p className="font-semibold text-gray-900">Magnum Torque Retífica LTDA</p>
-                    </div>
-                    <div className="p-4 bg-gray-50 rounded-lg border">
-                      <p className="text-sm font-medium text-gray-500 mb-1">Endereço</p>
-                      <p className="font-semibold text-gray-900">Rua das Indústrias, 789 - Belo Horizonte, MG</p>
-                    </div>
-                    <div className="p-4 bg-gray-50 rounded-lg border">
-                      <p className="text-sm font-medium text-gray-500 mb-1">Telefone</p>
-                      <p className="font-semibold text-gray-900">(31) 3333-4444</p>
-                    </div>
-                    <div className="p-4 bg-gray-50 rounded-lg border">
-                      <p className="text-sm font-medium text-gray-500 mb-1">Email</p>
-                      <p className="font-semibold text-gray-900">contato@magnumtorque.com.br</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <Separator />
-                
-                <div>
-                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    Segurança
-                  </h3>
-                  <div className="p-4 bg-gray-50 rounded-lg border">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                      <div>
-                        <p className="font-semibold text-gray-900">Proteção de Acesso</p>
-                        <p className="text-sm text-gray-500">
-                          O sistema está protegido com autenticação segura
-                        </p>
-                      </div>
-                      <Badge className="bg-green-100 text-green-700 border-green-200 w-fit">
-                        <ShieldCheck className="h-3 w-3 mr-1" /> Ativo
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        );
-      default:
-        return <ProductAdmin />;
-    }
-  };
+  const renderTabContent = () => <ProductAdmin />;
 
   return (
     <div className="min-h-screen bg-gray-100">

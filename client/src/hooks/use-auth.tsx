@@ -62,7 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       refetch().then((result) => {
         if (result.data?.isAuthenticated) {
           // Redirect to admin panel after confirmation of authentication
-          setLocation("/painel_magnum_administrativo_g2015443");
+          setLocation("/admin");
         }
       });
     },
@@ -78,7 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onSuccess: () => {
       // Refetch auth status and invalidate user-related queries
       queryClient.invalidateQueries();
-      setLocation("/acessar_sistema_seguro_v87");
+      setLocation("/login");
     },
   });
 

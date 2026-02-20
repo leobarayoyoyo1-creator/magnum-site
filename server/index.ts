@@ -47,19 +47,20 @@ passport.deserializeUser(async (id: number, done) => {
 });
 
 const app = express();
+
+// Necessário para que cookies/sessão funcionem atrás de proxy reverso (nginx com HTTPS)
+app.set('trust proxy', 1);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Servir arquivos estáticos da pasta public
+// Servir arquivos estáticos da pasta public (imagens de produtos, logos)
 app.use(express.static(path.join(process.cwd(), 'public')));
 
-// Middleware para depurar requisições de imagens
-app.use((req, res, next) => {
-  if (req.path.match(/\.(jpg|jpeg|png|gif|svg)$/i)) {
-    log(`Requisição de imagem: ${req.path}`);
-  }
-  next();
-});
+// Avisa em produção se SESSION_SECRET não estiver configurado
+if (process.env.NODE_ENV === "production" && !process.env.SESSION_SECRET) {
+  console.warn("AVISO: SESSION_SECRET não configurado. Usando fallback inseguro em produção!");
+}
 
 // Session setup
 app.use(session({
@@ -136,11 +137,7 @@ app.use((req, res, next) => {
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const port = 5000;
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
+  server.listen(port, "0.0.0.0", () => {
     log(`serving on port ${port}`);
   });
 })();

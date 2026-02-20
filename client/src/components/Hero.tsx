@@ -59,7 +59,7 @@ export default function Hero() {
                 Entre em Contato
                 <ChevronRight size={18} className="ml-2" />
               </Button>
-              <Link href="/catalogo">
+              <Link href="/produtos">
                 <Button 
                   variant="outline" 
                   className="bg-white/15 hover:bg-white/25 backdrop-blur-sm transition-all duration-300 text-white border-white/25 hover:border-white/40 font-medium px-6 sm:px-8 md:px-10 py-4 sm:py-6 md:py-7 rounded-lg shadow-xl h-auto transform hover:scale-105 text-sm sm:text-base flex items-center justify-center w-full"

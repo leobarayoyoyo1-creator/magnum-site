@@ -197,8 +197,8 @@ export default function Login() {
           </CardContent>
           <CardFooter className="flex justify-center border-t border-white/10 pt-6">
             <div className="flex items-center text-sm text-gray-500">
-              <Shield className="h-4 w-4 mr-2 text-green-500" />
-              Conexão segura e criptografada
+              <Shield className="h-4 w-4 mr-2 text-gray-500" />
+              Acesso restrito a usuários autorizados
             </div>
           </CardFooter>
         </Card>
@@ -207,7 +207,7 @@ export default function Login() {
       {/* Footer */}
       <div className="relative z-10 p-4 sm:p-6 text-center">
         <p className="text-sm text-gray-600">
-          © 2026 Magnum Torque Retífica LTDA. Todos os direitos reservados.
+          © {new Date().getFullYear()} Magnum Torque Retífica LTDA. Todos os direitos reservados.
         </p>
       </div>
     </div>

@@ -4,8 +4,9 @@ module.exports = {
     script: "dist/index.js",
     cwd: "/sistemas/magnum",
     env_production: {
-      NODE_ENV: "production",
-      DATABASE_URL: "postgresql://magnumuser:83301100@localhost:5432/magnumtorque"
+      NODE_ENV: "production"
+      // DATABASE_URL e SESSION_SECRET devem estar no .env do servidor
+      // (nunca commitar credenciais aqui)
     }
   }]
 }

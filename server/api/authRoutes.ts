@@ -4,6 +4,15 @@ import { insertUserSchema } from "@shared/schema";
 import * as z from "zod";
 import passport from "passport";
 import bcrypt from "bcryptjs";
+import rateLimit from "express-rate-limit";
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 10,                   // máximo 10 tentativas por IP
+  message: { success: false, message: "Muitas tentativas de login. Tente novamente em 15 minutos." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 /**
  * Registers authentication and user‑related routes on the provided Express app.
@@ -51,7 +60,7 @@ export function registerAuthRoutes(app: Express): void {
     }
   });
 
-  app.post("/api/auth/login", (req, res, next) => {
+  app.post("/api/auth/login", loginLimiter, (req, res, next) => {
     passport.authenticate("local", (err: any, user: any, info: any) => {
       if (err) {
         return next(err);

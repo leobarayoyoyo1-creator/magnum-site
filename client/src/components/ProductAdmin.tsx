@@ -8,12 +8,12 @@ import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Separator } from "@/components/ui/separator";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -169,12 +169,8 @@ function ImageGallery({ value, onChange }: ImageGalleryProps) {
   });
 
   function fixImagePath(path: any): string {
-    if (!path || typeof path !== 'string') {
-      return '/products/sample-converter.jpg';
-    }
-    if (path.startsWith('http://') || path.startsWith('https://')) {
-      return path;
-    }
+    if (!path || typeof path !== 'string') return '/products/sample-converter.jpg';
+    if (path.startsWith('http://') || path.startsWith('https://')) return path;
     return path.startsWith('/') ? path : `/${path}`;
   }
 
@@ -192,14 +188,9 @@ function ImageGallery({ value, onChange }: ImageGalleryProps) {
         body: formData,
         credentials: 'include',
       });
-
       const result = await response.json();
-
       if (result.success) {
-        toast({
-          title: "Imagem enviada",
-          description: "A imagem foi enviada com sucesso!",
-        });
+        toast({ title: "Imagem enviada", description: "A imagem foi enviada com sucesso!" });
         onChange(result.path);
         queryClient.invalidateQueries({ queryKey: ["/api/product-images"] });
         setIsOpen(false);
@@ -214,17 +205,16 @@ function ImageGallery({ value, onChange }: ImageGalleryProps) {
       });
     } finally {
       setIsUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
   const imagePreview = fixImagePath(value);
 
   return (
-    <div className="space-y-4">
-      <div className="border rounded-lg overflow-hidden aspect-video bg-muted/50 relative">
+    <div className="space-y-3">
+      {/* Preview */}
+      <div className="border rounded-lg overflow-hidden bg-muted/50 relative" style={{ aspectRatio: '16/9' }}>
         {value ? (
           <>
             <img
@@ -242,28 +232,31 @@ function ImageGallery({ value, onChange }: ImageGalleryProps) {
           </>
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-            <FileImage className="h-12 w-12 mb-2 opacity-50" />
+            <FileImage className="h-10 w-10 mb-2 opacity-40" />
             <p className="text-sm">Nenhuma imagem selecionada</p>
+            <p className="text-xs mt-1 text-muted-foreground/70">Clique em "Selecionar" para adicionar</p>
           </div>
         )}
       </div>
 
+      {/* Actions */}
       <div className="flex gap-2">
         <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
             <Button type="button" variant="outline" className="flex-1">
               <FileImage className="h-4 w-4 mr-2" />
-              Galeria
+              {value ? "Trocar imagem" : "Selecionar imagem"}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-[400px] p-4" align="start">
+          <PopoverContent className="w-[420px] p-4" align="start">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h4 className="font-medium">Selecionar Imagem</h4>
-                <Badge variant="outline">{availableImages.length} disponíveis</Badge>
+                <h4 className="font-medium">Biblioteca de Imagens</h4>
+                <span className="text-xs text-muted-foreground">{availableImages.length} disponíveis</span>
               </div>
 
-              <div className="flex gap-2">
+              {/* Upload */}
+              <div>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -280,19 +273,17 @@ function ImageGallery({ value, onChange }: ImageGalleryProps) {
                   disabled={isUploading}
                 >
                   {isUploading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Enviando...
-                    </>
+                    <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Enviando...</>
                   ) : (
-                    <>
-                      <Upload className="h-4 w-4 mr-2" />
-                      Enviar nova imagem
-                    </>
+                    <><Upload className="h-4 w-4 mr-2" />Enviar nova imagem</>
                   )}
                 </Button>
+                <p className="text-xs text-muted-foreground mt-1.5 text-center">JPG, PNG, WebP — máx. 10 MB</p>
               </div>
 
+              <Separator />
+
+              {/* Gallery grid */}
               {isLoadingImages ? (
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="h-5 w-5 animate-spin mr-2" />
@@ -301,12 +292,12 @@ function ImageGallery({ value, onChange }: ImageGalleryProps) {
               ) : availableImages.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <FileImage className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">Nenhuma imagem na galeria</p>
+                  <p className="text-sm">Galeria vazia</p>
                   <p className="text-xs mt-1">Envie uma imagem para começar</p>
                 </div>
               ) : (
-                <ScrollArea className="h-[250px]">
-                  <div className="grid grid-cols-3 gap-2">
+                <ScrollArea className="h-[220px]">
+                  <div className="grid grid-cols-3 gap-2 pr-2">
                     {availableImages.map((imgPath: string, index: number) => {
                       const isSelected = value === imgPath;
                       return (
@@ -316,10 +307,7 @@ function ImageGallery({ value, onChange }: ImageGalleryProps) {
                             "relative border rounded-md overflow-hidden cursor-pointer transition-all hover:ring-2 hover:ring-primary/60",
                             isSelected && "ring-2 ring-primary"
                           )}
-                          onClick={() => {
-                            onChange(imgPath);
-                            setIsOpen(false);
-                          }}
+                          onClick={() => { onChange(imgPath); setIsOpen(false); }}
                         >
                           <div className="aspect-square bg-muted">
                             <img
@@ -348,12 +336,7 @@ function ImageGallery({ value, onChange }: ImageGalleryProps) {
         </Popover>
 
         {value && (
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            onClick={() => onChange('')}
-          >
+          <Button type="button" variant="outline" size="icon" onClick={() => onChange('')} title="Remover imagem">
             <X className="h-4 w-4" />
           </Button>
         )}
@@ -362,61 +345,53 @@ function ImageGallery({ value, onChange }: ImageGalleryProps) {
   );
 }
 
-interface ProductFormComponentProps {
+interface ProductFormProps {
   form: any;
   onSubmit: (data: any) => void;
+  onCancel: () => void;
   isEdit?: boolean;
 }
 
-function ProductFormComponent({ form, onSubmit, isEdit = false }: ProductFormComponentProps) {
+function ProductForm({ form, onSubmit, onCancel, isEdit = false }: ProductFormProps) {
   const { data: carModels = [], isLoading: loadingCarModels } = useQuery({
     queryKey: ["/api/filters/car-models"],
     queryFn: () => apiRequest("/api/filters/car-models") as Promise<string[]>
   });
-
   const { data: transmissions = [], isLoading: loadingTransmissions } = useQuery({
     queryKey: ["/api/filters/all-transmissions"],
     queryFn: () => apiRequest("/api/filters/all-transmissions") as Promise<string[]>
   });
-
   const { data: motorizations = [], isLoading: loadingMotorizations } = useQuery({
     queryKey: ["/api/filters/all-motorizations"],
     queryFn: () => apiRequest("/api/filters/all-motorizations") as Promise<string[]>
   });
-
   const { data: years = [], isLoading: loadingYears } = useQuery({
     queryKey: ["/api/filters/all-years"],
     queryFn: () => apiRequest("/api/filters/all-years") as Promise<string[]>
   });
 
+  const descriptionValue = form.watch("description") || "";
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {isEdit && (
-          <FormField
-            control={form.control}
-            name="id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>ID do Produto</FormLabel>
-                <FormControl>
-                  <Input {...field} readOnly className="bg-muted" />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-        )}
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full">
+        {/* Scrollable content */}
+        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Section 1: Product info */}
           <div className="space-y-4">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Informações do Produto
+            </p>
+
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nome do Produto *</FormLabel>
+                  <FormLabel>Nome do Produto <span className="text-destructive">*</span></FormLabel>
                   <FormControl>
-                    <Input placeholder="Ex: Conversor de Torque BMW" {...field} />
+                    <Input placeholder="Ex: Conversor de Torque 6L80 GM" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -428,10 +403,13 @@ function ProductFormComponent({ form, onSubmit, isEdit = false }: ProductFormCom
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Descrição *</FormLabel>
+                  <div className="flex items-center justify-between">
+                    <FormLabel>Descrição <span className="text-destructive">*</span></FormLabel>
+                    <span className="text-xs text-muted-foreground">{descriptionValue.length} caracteres</span>
+                  </div>
                   <FormControl>
                     <Textarea
-                      placeholder="Descrição detalhada do produto..."
+                      placeholder="Descreva as características, compatibilidade e diferenciais do produto..."
                       className="min-h-[100px] resize-none"
                       {...field}
                     />
@@ -440,6 +418,15 @@ function ProductFormComponent({ form, onSubmit, isEdit = false }: ProductFormCom
                 </FormItem>
               )}
             />
+          </div>
+
+          <Separator />
+
+          {/* Section 2: Technical specs */}
+          <div className="space-y-4">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Especificações Técnicas
+            </p>
 
             <div className="grid grid-cols-2 gap-4">
               <FormField
@@ -447,7 +434,7 @@ function ProductFormComponent({ form, onSubmit, isEdit = false }: ProductFormCom
                 name="carModel"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Modelo do Carro *</FormLabel>
+                    <FormLabel>Modelo do Veículo <span className="text-destructive">*</span></FormLabel>
                     <FormControl>
                       <ComboboxField
                         value={field.value}
@@ -468,7 +455,7 @@ function ProductFormComponent({ form, onSubmit, isEdit = false }: ProductFormCom
                 name="transmission"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Transmissão *</FormLabel>
+                    <FormLabel>Transmissão <span className="text-destructive">*</span></FormLabel>
                     <FormControl>
                       <ComboboxField
                         value={field.value}
@@ -491,7 +478,7 @@ function ProductFormComponent({ form, onSubmit, isEdit = false }: ProductFormCom
                 name="motorization"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Motorização *</FormLabel>
+                    <FormLabel>Motorização <span className="text-destructive">*</span></FormLabel>
                     <FormControl>
                       <ComboboxField
                         value={field.value}
@@ -512,7 +499,7 @@ function ProductFormComponent({ form, onSubmit, isEdit = false }: ProductFormCom
                 name="year"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Ano *</FormLabel>
+                    <FormLabel>Ano <span className="text-destructive">*</span></FormLabel>
                     <FormControl>
                       <ComboboxField
                         value={field.value}
@@ -530,51 +517,47 @@ function ProductFormComponent({ form, onSubmit, isEdit = false }: ProductFormCom
             </div>
           </div>
 
+          <Separator />
+
+          {/* Section 3: Image */}
           <div className="space-y-4">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Imagem do Produto
+            </p>
+
             <FormField
               control={form.control}
               name="imageUrl"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Imagem do Produto</FormLabel>
                   <FormControl>
-                    <ImageGallery
-                      value={field.value || ''}
-                      onChange={field.onChange}
-                    />
+                    <ImageGallery value={field.value || ''} onChange={field.onChange} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
-            <div className="bg-muted/50 rounded-lg p-4 border">
-              <h4 className="font-medium text-sm mb-2">Dicas</h4>
-              <ul className="text-xs text-muted-foreground space-y-1">
-                <li>• Campos com * são obrigatórios</li>
-                <li>• Você pode digitar valores personalizados nos campos de seleção</li>
-                <li>• Imagens devem ter até 10MB (JPG, PNG, GIF, WebP)</li>
-              </ul>
-            </div>
           </div>
         </div>
 
-        <DialogFooter>
-          <Button type="submit" disabled={form.formState.isSubmitting}>
-            {form.formState.isSubmitting && (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            )}
+        {/* Sticky footer */}
+        <div className="border-t px-6 py-4 bg-background flex gap-3">
+          <Button type="button" variant="outline" className="flex-1" onClick={onCancel}>
+            Cancelar
+          </Button>
+          <Button type="submit" className="flex-1" disabled={form.formState.isSubmitting}>
+            {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {isEdit ? "Salvar Alterações" : "Adicionar Produto"}
           </Button>
-        </DialogFooter>
+        </div>
       </form>
     </Form>
   );
 }
 
 export function ProductAdmin() {
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isAddSheetOpen, setIsAddSheetOpen] = useState(false);
+  const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -586,6 +569,14 @@ export function ProductAdmin() {
     queryFn: () => apiRequest("/api/products") as Promise<Product[]>
   });
 
+  const invalidateAll = () => {
+    queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/filters/car-models"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/filters/all-transmissions"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/filters/all-motorizations"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/filters/all-years"] });
+  };
+
   const addProductMutation = useMutation({
     mutationFn: async (data: ProductFormValues) => {
       return await apiRequest("/api/products", {
@@ -595,12 +586,8 @@ export function ProductAdmin() {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/filters/car-models"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/filters/all-transmissions"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/filters/all-motorizations"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/filters/all-years"] });
-      setIsAddDialogOpen(false);
+      invalidateAll();
+      setIsAddSheetOpen(false);
       addForm.reset();
       toast({ title: "Produto adicionado", description: "Produto adicionado com sucesso ao catálogo." });
     },
@@ -619,12 +606,8 @@ export function ProductAdmin() {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/filters/car-models"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/filters/all-transmissions"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/filters/all-motorizations"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/filters/all-years"] });
-      setIsEditDialogOpen(false);
+      invalidateAll();
+      setIsEditSheetOpen(false);
       setSelectedProduct(null);
       toast({ title: "Produto atualizado", description: "Alterações salvas com sucesso." });
     },
@@ -636,7 +619,7 @@ export function ProductAdmin() {
   const deleteProductMutation = useMutation({
     mutationFn: (id: number) => apiRequest(`/api/products/${id}`, { method: "DELETE" }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+      invalidateAll();
       setIsDeleteDialogOpen(false);
       setSelectedProduct(null);
       toast({ title: "Produto excluído", description: "Produto removido do catálogo." });
@@ -646,34 +629,21 @@ export function ProductAdmin() {
     }
   });
 
+  const defaultValues = {
+    name: "", description: "", carModel: "", transmission: "", motorization: "", year: "", imageUrl: ""
+  };
+
   const addForm = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
-    defaultValues: {
-      name: "",
-      description: "",
-      carModel: "",
-      transmission: "",
-      motorization: "",
-      year: "",
-      imageUrl: "",
-    }
+    defaultValues,
   });
 
   const editForm = useForm<ProductFormValues & { id: number }>({
     resolver: zodResolver(productFormSchema.extend({ id: z.number() })),
-    defaultValues: {
-      id: 0,
-      name: "",
-      description: "",
-      carModel: "",
-      transmission: "",
-      motorization: "",
-      year: "",
-      imageUrl: "",
-    }
+    defaultValues: { id: 0, ...defaultValues },
   });
 
-  const openEditDialog = (product: Product) => {
+  const openEditSheet = (product: Product) => {
     setSelectedProduct(product);
     editForm.reset({
       id: product.id,
@@ -685,7 +655,7 @@ export function ProductAdmin() {
       year: product.year,
       imageUrl: product.imageUrl || "",
     });
-    setIsEditDialogOpen(true);
+    setIsEditSheetOpen(true);
   };
 
   const openDeleteDialog = (product: Product) => {
@@ -701,141 +671,147 @@ export function ProductAdmin() {
   );
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <CardTitle>Gerenciar Produtos</CardTitle>
-            <CardDescription>Adicione, edite ou remova produtos do catálogo.</CardDescription>
-          </div>
-          <div className="flex gap-3">
-            <div className="relative w-full md:w-64">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Buscar produtos..."
-                className="pl-9"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              {searchTerm && (
-                <button
-                  type="button"
-                  onClick={() => setSearchTerm("")}
-                  className="absolute right-2.5 top-2.5 text-muted-foreground hover:text-foreground"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
+    <>
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <CardTitle>Gerenciar Produtos</CardTitle>
+              <CardDescription>Adicione, edite ou remova produtos do catálogo.</CardDescription>
             </div>
-            <Dialog open={isAddDialogOpen} onOpenChange={(open) => {
-              setIsAddDialogOpen(open);
-              if (!open) addForm.reset();
-            }}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="h-4 w-4 mr-1" /> Adicionar
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>Adicionar Novo Produto</DialogTitle>
-                  <DialogDescription>
-                    Preencha os campos para adicionar um novo produto ao catálogo.
-                  </DialogDescription>
-                </DialogHeader>
-                <ProductFormComponent
-                  form={addForm}
-                  onSubmit={(data) => addProductMutation.mutate(data)}
+            <div className="flex gap-3">
+              <div className="relative w-full md:w-64">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="search"
+                  placeholder="Buscar produtos..."
+                  className="pl-9"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
-              </DialogContent>
-            </Dialog>
+                {searchTerm && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchTerm("")}
+                    className="absolute right-2.5 top-2.5 text-muted-foreground hover:text-foreground"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+              <Button onClick={() => setIsAddSheetOpen(true)}>
+                <Plus className="h-4 w-4 mr-1" /> Adicionar
+              </Button>
+            </div>
           </div>
-        </div>
-      </CardHeader>
-      <CardContent>
-        {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-6 w-6 animate-spin mr-2" />
-            <span>Carregando produtos...</span>
-          </div>
-        ) : filteredProducts.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground">
-            {searchTerm ? "Nenhum produto encontrado." : "Nenhum produto cadastrado."}
-          </div>
-        ) : (
-          <div className="border rounded-md overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead className="hidden md:table-cell">Modelo</TableHead>
-                  <TableHead className="hidden lg:table-cell">Transmissão</TableHead>
-                  <TableHead className="hidden lg:table-cell">Motorização</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredProducts.map((product: Product) => (
-                  <TableRow key={product.id}>
-                    <TableCell className="font-medium max-w-[200px] truncate">
-                      {product.name}
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell max-w-[150px] truncate">
-                      {product.carModel}
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell max-w-[150px] truncate">
-                      {product.transmission}
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell max-w-[150px] truncate">
-                      {product.motorization}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="icon" onClick={() => openEditDialog(product)}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => openDeleteDialog(product)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-6 w-6 animate-spin mr-2" />
+              <span>Carregando produtos...</span>
+            </div>
+          ) : filteredProducts.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              {searchTerm ? "Nenhum produto encontrado para esta busca." : "Nenhum produto cadastrado. Clique em Adicionar para começar."}
+            </div>
+          ) : (
+            <div className="border rounded-md overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nome</TableHead>
+                    <TableHead className="hidden md:table-cell">Modelo</TableHead>
+                    <TableHead className="hidden lg:table-cell">Transmissão</TableHead>
+                    <TableHead className="hidden lg:table-cell">Motorização</TableHead>
+                    <TableHead className="hidden xl:table-cell">Ano</TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        )}
+                </TableHeader>
+                <TableBody>
+                  {filteredProducts.map((product: Product) => (
+                    <TableRow key={product.id}>
+                      <TableCell className="font-medium max-w-[200px] truncate">{product.name}</TableCell>
+                      <TableCell className="hidden md:table-cell max-w-[150px] truncate">{product.carModel}</TableCell>
+                      <TableCell className="hidden lg:table-cell max-w-[150px] truncate">{product.transmission}</TableCell>
+                      <TableCell className="hidden lg:table-cell max-w-[150px] truncate">{product.motorization}</TableCell>
+                      <TableCell className="hidden xl:table-cell">{product.year}</TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="icon" onClick={() => openEditSheet(product)} title="Editar">
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => openDeleteDialog(product)} title="Excluir">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Editar Produto</DialogTitle>
-              <DialogDescription>Faça as alterações desejadas nos campos abaixo.</DialogDescription>
-            </DialogHeader>
-            <ProductFormComponent
+      {/* Add Sheet */}
+      <Sheet open={isAddSheetOpen} onOpenChange={(open) => { setIsAddSheetOpen(open); if (!open) addForm.reset(); }}>
+        <SheetContent side="right" className="w-full sm:max-w-2xl p-0 flex flex-col">
+          <SheetHeader className="px-6 py-4 border-b">
+            <SheetTitle>Adicionar Novo Produto</SheetTitle>
+            <SheetDescription>
+              Preencha os campos abaixo para adicionar um produto ao catálogo.
+            </SheetDescription>
+          </SheetHeader>
+          <div className="flex-1 overflow-hidden">
+            <ProductForm
+              form={addForm}
+              onSubmit={(data) => addProductMutation.mutate(data)}
+              onCancel={() => { setIsAddSheetOpen(false); addForm.reset(); }}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Edit Sheet */}
+      <Sheet open={isEditSheetOpen} onOpenChange={setIsEditSheetOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-2xl p-0 flex flex-col">
+          <SheetHeader className="px-6 py-4 border-b">
+            <SheetTitle>Editar Produto</SheetTitle>
+            <SheetDescription>
+              Edite as informações de <strong>{selectedProduct?.name}</strong>.
+            </SheetDescription>
+          </SheetHeader>
+          <div className="flex-1 overflow-hidden">
+            <ProductForm
               form={editForm}
               onSubmit={(data) => editProductMutation.mutate(data)}
+              onCancel={() => setIsEditSheetOpen(false)}
               isEdit
             />
-          </DialogContent>
-        </Dialog>
+          </div>
+        </SheetContent>
+      </Sheet>
 
-        <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Excluir Produto</AlertDialogTitle>
-              <AlertDialogDescription>
-                Tem certeza que deseja excluir "{selectedProduct?.name}"? Esta ação não pode ser desfeita.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-              <AlertDialogAction onClick={() => selectedProduct && deleteProductMutation.mutate(selectedProduct.id)}>
-                Excluir
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </CardContent>
-    </Card>
+      {/* Delete Confirmation */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir Produto</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir <strong>"{selectedProduct?.name}"</strong>? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive hover:bg-destructive/90"
+              onClick={() => selectedProduct && deleteProductMutation.mutate(selectedProduct.id)}
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
