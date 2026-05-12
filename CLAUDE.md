@@ -64,7 +64,7 @@ Output `blog/search-index.json` is the only generated file in the repo and **mus
 2. Optionally create `blog/<new-slug>/synonyms.json` — a JSON array of strings (see existing post for the format).
 3. Add a `<article class="blog-list-card" data-slug="<new-slug>">` block to `blog/index.html`, plus a `BlogPosting` entry to the JSON-LD `Blog` schema in the same file.
 4. Add a `<url>` block to `sitemap.xml`.
-5. Run `node scripts/build-search.mjs` (with `ANTHROPIC_API_KEY` if you want AI synonyms — costs ~$0.01/post).
+5. Run `node scripts/build-search.mjs` (with `ANTHROPIC_API_KEY` if you want AI synonyms — costs ~$0.04-0.06/post on Claude Sonnet 4.6).
 6. Commit the new files **and** the updated `blog/search-index.json`.
 
 `notes/post-ideas.md` is an internal roadmap of planned posts — never deployed (it's a `.md`, denied by `.htaccess` anyway, and `robots.txt` disallows the directory).
